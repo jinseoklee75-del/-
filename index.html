@@ -1,0 +1,1471 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>디지털 L&D센터 핵심관리지표 | Hanwha</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+  <style>
+    :root {
+      --hanwha-orange: #F37321;
+      --hanwha-orange-70: #F89B6C;
+      --hanwha-orange-50: #FBB584;
+      --hanwha-black: #000000;
+      --hanwha-gray-90: #1a1a1a;
+      --hanwha-gray-70: #4d4d4d;
+      --hanwha-gray-50: #808080;
+      --hanwha-gray-20: #e5e5e5;
+      --hanwha-gray-10: #f5f5f5;
+      --bg: #ffffff;
+      --surface: #ffffff;
+      --primary: var(--hanwha-black);
+      --accent: var(--hanwha-orange);
+      --success: #2d8a4e;
+      --warning: var(--hanwha-orange);
+      --danger: #d32f2f;
+      --text: var(--hanwha-gray-90);
+      --text-muted: var(--hanwha-gray-50);
+      --border: var(--hanwha-gray-20);
+      --shadow: 0 2px 8px rgba(0,0,0,.06);
+      --shadow-lg: 0 4px 20px rgba(243,115,33,.08);
+      --radius: 4px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+      background: var(--hanwha-gray-10);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+    header {
+      background: var(--bg);
+      color: var(--hanwha-black);
+      padding: 0;
+      box-shadow: 0 1px 0 var(--border);
+      border-bottom: 3px solid var(--hanwha-orange);
+    }
+    .header-inner {
+      display: flex; align-items: center; gap: 1.25rem;
+      padding: 1.25rem 2rem; max-width: 1400px; margin: 0 auto;
+    }
+    .hanwha-tricircle {
+      flex-shrink: 0; width: 48px; height: 48px; position: relative;
+    }
+    .hanwha-tricircle span {
+      position: absolute; border-radius: 50%; width: 28px; height: 28px;
+    }
+    .hanwha-tricircle .c1 { background: var(--hanwha-orange); top: 0; left: 10px; z-index: 3; }
+    .hanwha-tricircle .c2 { background: var(--hanwha-orange-70); top: 14px; left: 0; z-index: 2; }
+    .hanwha-tricircle .c3 { background: var(--hanwha-orange-50); top: 14px; left: 20px; z-index: 1; }
+    .header-text { flex: 1; }
+    .header-brand {
+      font-size: .7rem; font-weight: 700; letter-spacing: .12em;
+      color: var(--hanwha-orange); text-transform: uppercase; margin-bottom: .15rem;
+    }
+    header h1 { font-size: 1.4rem; font-weight: 800; color: var(--hanwha-black); letter-spacing: -.02em; }
+    header p { font-size: .82rem; color: var(--hanwha-gray-50); margin-top: .2rem; font-weight: 400; }
+    .header-tagline {
+      font-size: .72rem; color: var(--hanwha-gray-50); font-style: italic;
+      margin-top: .35rem; letter-spacing: .02em;
+    }
+    .toolbar {
+      display: flex; flex-wrap: wrap; gap: .6rem; align-items: center;
+      padding: .85rem 2rem; background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      position: sticky; top: 0; z-index: 100;
+    }
+    .toolbar label { font-size: .8rem; color: var(--hanwha-gray-70); font-weight: 500; }
+    .toolbar select, .toolbar input[type="number"] {
+      padding: .4rem .65rem; border: 1px solid var(--border); border-radius: var(--radius);
+      font-size: .85rem; background: #fff; font-family: inherit;
+      transition: border-color .15s;
+    }
+    .toolbar select:focus, .toolbar input:focus {
+      outline: none; border-color: var(--hanwha-orange);
+    }
+    .btn {
+      padding: .45rem 1rem; border: none; border-radius: var(--radius); cursor: pointer;
+      font-size: .82rem; font-weight: 600; transition: all .15s; font-family: inherit;
+      letter-spacing: -.01em;
+    }
+    .btn-primary { background: var(--hanwha-orange); color: #fff; }
+    .btn-primary:hover { background: #e06518; box-shadow: var(--shadow-lg); }
+    .btn-secondary {
+      background: var(--surface); color: var(--hanwha-black);
+      border: 1px solid var(--hanwha-gray-20);
+    }
+    .btn-secondary:hover { border-color: var(--hanwha-orange); color: var(--hanwha-orange); }
+    .btn-success { background: var(--hanwha-black); color: #fff; }
+    .btn-success:hover { background: var(--hanwha-gray-90); }
+    .btn-danger { background: #fff; color: var(--danger); border: 1px solid #ffcdd2; font-size: .78rem; padding: .3rem .6rem; }
+    .btn-danger:hover { background: #ffebee; }
+    .tabs {
+      display: flex; gap: 0; padding: 0 2rem; background: var(--surface);
+      border-bottom: 1px solid var(--border);
+    }
+    .tab {
+      padding: .9rem 1.4rem; cursor: pointer; font-weight: 600; font-size: .88rem;
+      color: var(--hanwha-gray-50); border-bottom: 3px solid transparent; margin-bottom: -1px;
+      transition: all .15s;
+    }
+    .tab:hover { color: var(--hanwha-orange); }
+    .tab.active { color: var(--hanwha-black); border-bottom-color: var(--hanwha-orange); }
+    main { padding: 1.75rem 2rem 3rem; max-width: 1400px; margin: 0 auto; }
+    .panel { display: none; }
+    .panel.active { display: block; }
+    .category-section { margin-bottom: 2.25rem; }
+    .category-title {
+      font-size: .95rem; font-weight: 700; color: var(--hanwha-black);
+      margin-bottom: 1rem; padding-left: .75rem;
+      border-left: 4px solid var(--hanwha-orange);
+      letter-spacing: -.01em;
+    }
+    .kpi-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem;
+    }
+    .kpi-card {
+      background: var(--surface); border-radius: var(--radius); padding: 1.35rem;
+      box-shadow: var(--shadow); border: 1px solid var(--border);
+      border-top: 3px solid var(--hanwha-orange-50);
+      transition: box-shadow .2s, border-color .2s;
+    }
+    .kpi-card:hover { box-shadow: var(--shadow-lg); border-color: var(--hanwha-orange-70); }
+    .kpi-card.achieved { border-top-color: var(--hanwha-orange); }
+    .kpi-card.warning { border-top-color: var(--hanwha-orange-70); }
+    .kpi-card.danger { border-top-color: var(--hanwha-gray-50); }
+    .kpi-card .kpi-name { font-size: .82rem; color: var(--hanwha-gray-70); margin-bottom: .35rem; font-weight: 500; }
+    .kpi-card .kpi-value { font-size: 1.85rem; font-weight: 800; color: var(--hanwha-black); letter-spacing: -.03em; }
+    .kpi-card.achieved .kpi-value { color: var(--hanwha-orange); }
+    .kpi-card .kpi-unit { font-size: .88rem; font-weight: 600; color: var(--hanwha-gray-50); }
+    .kpi-card .kpi-target { font-size: .76rem; color: var(--hanwha-gray-50); margin-top: .55rem; }
+    .kpi-card .kpi-desc { font-size: .73rem; color: var(--hanwha-gray-50); margin-top: .4rem; line-height: 1.45; }
+    .kpi-card .status-badge {
+      display: inline-block; font-size: .68rem; font-weight: 700; padding: .2rem .55rem;
+      border-radius: 2px; margin-top: .6rem; letter-spacing: .02em;
+    }
+    .status-badge.ok { background: #fff3e8; color: var(--hanwha-orange); border: 1px solid var(--hanwha-orange-50); }
+    .status-badge.ng { background: #f5f5f5; color: var(--hanwha-gray-70); border: 1px solid var(--border); }
+    .settings-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1rem;
+      background: var(--surface); padding: 1.5rem; border-radius: var(--radius);
+      box-shadow: var(--shadow); border: 1px solid var(--border); margin-bottom: 1.5rem;
+    }
+    .settings-grid .field label {
+      display: block; font-size: .78rem; color: var(--hanwha-gray-70);
+      margin-bottom: .35rem; font-weight: 600;
+    }
+    .settings-grid .field input {
+      width: 100%; padding: .55rem .65rem; border: 1px solid var(--border);
+      border-radius: var(--radius); font-size: .92rem; font-family: inherit;
+    }
+    .settings-grid .field input:focus { outline: none; border-color: var(--hanwha-orange); }
+    .section-card {
+      background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow);
+      border: 1px solid var(--border); margin-bottom: 1.5rem; overflow: hidden;
+    }
+    .section-card-header {
+      padding: 1rem 1.35rem; background: var(--hanwha-black); color: #fff;
+      font-weight: 700; font-size: .92rem;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .section-card-header .btn-primary { background: var(--hanwha-orange); }
+    .section-card-body { padding: 1.15rem 1.35rem; overflow-x: auto; }
+    table.data-table { width: 100%; border-collapse: collapse; font-size: .84rem; }
+    table.data-table th {
+      background: var(--hanwha-gray-10); padding: .65rem .55rem; text-align: left;
+      font-weight: 700; color: var(--hanwha-black);
+      border-bottom: 2px solid var(--hanwha-orange); white-space: nowrap; font-size: .8rem;
+    }
+    table.data-table td { padding: .5rem .55rem; border-bottom: 1px solid var(--border); }
+    table.data-table tr:hover td { background: #fffaf6; }
+    table.data-table input, table.data-table select {
+      width: 100%; padding: .38rem .45rem; border: 1px solid var(--border);
+      border-radius: var(--radius); font-size: .84rem; font-family: inherit;
+    }
+    table.data-table input:focus, table.data-table select:focus {
+      outline: none; border-color: var(--hanwha-orange);
+    }
+    table.data-table input[type="checkbox"] { width: auto; accent-color: var(--hanwha-orange); }
+    .empty-msg { text-align: center; padding: 2.5rem; color: var(--hanwha-gray-50); font-size: .88rem; }
+    .toast {
+      position: fixed; bottom: 1.5rem; right: 1.5rem;
+      background: var(--hanwha-black); color: #fff;
+      padding: .8rem 1.35rem; border-radius: var(--radius); font-size: .85rem;
+      box-shadow: 0 4px 20px rgba(0,0,0,.2); border-left: 4px solid var(--hanwha-orange);
+      opacity: 0; transform: translateY(10px); transition: all .3s; z-index: 999;
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+    .file-input { display: none; }
+    .summary-bar { display: flex; flex-wrap: wrap; gap: .75rem; margin-bottom: 1.75rem; }
+    .summary-item {
+      background: var(--surface); padding: .7rem 1.2rem; border-radius: var(--radius);
+      box-shadow: var(--shadow); font-size: .84rem; border: 1px solid var(--border);
+      border-bottom: 2px solid var(--hanwha-orange-50);
+    }
+    .summary-item strong { color: var(--hanwha-orange); font-size: 1.05rem; font-weight: 800; }
+    .settings-note {
+      font-size: .82rem; color: var(--hanwha-gray-50); margin-top: .5rem;
+      padding: .85rem 1rem; background: #fffaf6; border-left: 3px solid var(--hanwha-orange-50);
+      border-radius: 0 var(--radius) var(--radius) 0;
+    }
+    footer {
+      text-align: center; padding: 1.25rem; font-size: .72rem;
+      color: var(--hanwha-gray-50); border-top: 1px solid var(--border);
+      background: var(--surface);
+    }
+    footer span { color: var(--hanwha-orange); font-weight: 600; }
+
+    /* ── Excel-style workbook ── */
+    .excel-workbook {
+      background: var(--surface); border: 1px solid #b4b4b4;
+      border-radius: var(--radius); overflow: hidden;
+      box-shadow: var(--shadow); display: flex; flex-direction: column;
+      min-height: 520px;
+    }
+    .excel-titlebar {
+      background: linear-gradient(180deg, #fff 0%, #f0f0f0 100%);
+      border-bottom: 1px solid #b4b4b4; padding: .5rem 1rem;
+      font-size: .82rem; font-weight: 600; color: var(--hanwha-gray-70);
+      display: flex; align-items: center; gap: .5rem;
+    }
+    .excel-titlebar::before {
+      content: ''; display: inline-block; width: 14px; height: 14px;
+      background: var(--hanwha-orange); border-radius: 2px;
+    }
+    .excel-formula-bar {
+      display: flex; align-items: stretch; border-bottom: 1px solid #b4b4b4;
+      background: #fff; height: 28px;
+    }
+    .excel-cell-ref {
+      width: 72px; flex-shrink: 0; border-right: 1px solid #b4b4b4;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .75rem; font-weight: 600; color: var(--hanwha-gray-70);
+      background: #f8f8f8; font-family: 'Consolas', 'Courier New', monospace;
+    }
+    .excel-fx {
+      width: 28px; flex-shrink: 0; border-right: 1px solid #b4b4b4;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .72rem; font-style: italic; color: var(--hanwha-gray-50);
+      background: #f8f8f8;
+    }
+    .excel-formula-input {
+      flex: 1; border: none; padding: 0 .6rem; font-size: .82rem;
+      font-family: 'Consolas', 'Malgun Gothic', monospace; outline: none;
+    }
+    .excel-formula-input:focus { background: #fffef5; }
+    .excel-ribbon {
+      display: flex; flex-wrap: wrap; gap: .35rem; align-items: center;
+      padding: .45rem .75rem; background: #f3f3f3; border-bottom: 1px solid #d4d4d4;
+    }
+    .excel-ribbon .btn { padding: .3rem .65rem; font-size: .78rem; border-radius: 2px; }
+    .excel-ribbon .sep { width: 1px; height: 20px; background: #ccc; margin: 0 .25rem; }
+    .excel-ribbon-hint { font-size: .72rem; color: var(--hanwha-gray-50); margin-left: auto; }
+    .excel-grid-wrap {
+      overflow: auto; flex: 1; background: #e8e8e8;
+      max-height: calc(100vh - 340px); min-height: 360px;
+    }
+    table.excel-grid {
+      border-collapse: collapse; table-layout: fixed;
+      font-size: 12px; font-family: 'Malgun Gothic', 'Segoe UI', sans-serif;
+      background: #fff;
+    }
+    table.excel-grid th, table.excel-grid td {
+      border: 1px solid #d4d4d4; padding: 0; height: 22px;
+      overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+    }
+    table.excel-grid .corner {
+      width: 42px; min-width: 42px; background: #f0f0f0;
+      position: sticky; left: 0; z-index: 4;
+    }
+    table.excel-grid .col-letter {
+      background: #f0f0f0; text-align: center; font-weight: 600;
+      color: var(--hanwha-gray-70); font-size: 11px; height: 20px;
+      position: sticky; top: 0; z-index: 2; cursor: default;
+    }
+    table.excel-grid .col-title {
+      background: #e8f4e8; text-align: center; font-weight: 600;
+      color: #1a5c1a; font-size: 11px; height: 22px;
+      position: sticky; top: 20px; z-index: 2; cursor: default;
+      border-bottom: 2px solid #6aaa6a;
+    }
+    table.excel-grid .row-num {
+      width: 42px; min-width: 42px; background: #f0f0f0;
+      text-align: center; font-size: 11px; color: var(--hanwha-gray-50);
+      position: sticky; left: 0; z-index: 1; cursor: default; user-select: none;
+    }
+    table.excel-grid td.data-cell {
+      padding: 0 4px; cursor: cell; background: #fff;
+      max-width: 0; /* for ellipsis with table-layout fixed */
+    }
+    table.excel-grid td.data-cell.selected {
+      outline: 2px solid #217346; outline-offset: -2px;
+      z-index: 1; position: relative; background: #e7f4ec;
+    }
+    table.excel-grid td.data-cell.editing {
+      outline: 2px solid #217346; outline-offset: -2px; padding: 0;
+    }
+    table.excel-grid td.data-cell.editing input,
+    table.excel-grid td.data-cell.editing select {
+      width: 100%; height: 100%; border: none; padding: 0 4px;
+      font-size: 12px; font-family: inherit; background: #fff;
+      outline: none; box-sizing: border-box;
+    }
+    table.excel-grid tr:hover td.data-cell:not(.selected) { background: #f5faf6; }
+    table.excel-grid td.data-cell.readonly { background: #f9f9f9; color: var(--hanwha-gray-50); }
+    .excel-sheet-tabs {
+      display: flex; background: #e0e0e0; border-top: 1px solid #b4b4b4;
+      overflow-x: auto; flex-shrink: 0;
+    }
+    .excel-sheet-tab {
+      padding: .35rem 1.1rem; font-size: .78rem; cursor: pointer;
+      border-right: 1px solid #b4b4b4; background: #d8d8d8;
+      color: var(--hanwha-gray-70); font-weight: 500; white-space: nowrap;
+      display: flex; align-items: center; gap: .35rem;
+    }
+    .excel-sheet-tab:hover { background: #ececec; }
+    .excel-sheet-tab.active {
+      background: #fff; color: var(--hanwha-black); font-weight: 700;
+      border-bottom: 2px solid var(--hanwha-orange); margin-bottom: -1px;
+    }
+    .excel-sheet-tab .sheet-icon {
+      width: 8px; height: 8px; border-radius: 1px;
+      background: #6aaa6a;
+    }
+    .excel-statusbar {
+      display: flex; gap: 1.5rem; padding: .25rem .75rem;
+      background: #217346; color: #fff; font-size: .7rem;
+    }
+    main.excel-mode { max-width: none; padding: 1rem 1.25rem 2rem; }
+    @media (max-width: 768px) {
+      .header-inner, .toolbar, .tabs, main { padding-left: 1rem; padding-right: 1rem; }
+      .kpi-grid { grid-template-columns: 1fr; }
+      .header-tagline { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <div class="hanwha-tricircle" aria-hidden="true">
+        <span class="c1"></span><span class="c2"></span><span class="c3"></span>
+      </div>
+      <div class="header-text">
+        <div class="header-brand">Hanwha Group</div>
+        <h1>디지털 L&D센터 핵심관리지표</h1>
+        <p>월간 관리 · 연간 누적 · 교육과정 단위 입력</p>
+        <div class="header-tagline">Energy for Life</div>
+      </div>
+    </div>
+  </header>
+
+  <div class="toolbar">
+    <label>연도</label>
+    <select id="selYear"></select>
+    <label>월</label>
+    <select id="selMonth">
+      <option value="0">연간 누적</option>
+      <option value="1">1월</option><option value="2">2월</option><option value="3">3월</option>
+      <option value="4">4월</option><option value="5">5월</option><option value="6">6월</option>
+      <option value="7">7월</option><option value="8">8월</option><option value="9">9월</option>
+      <option value="10">10월</option><option value="11">11월</option><option value="12">12월</option>
+    </select>
+    <button class="btn btn-success" onclick="saveData(true)">저장</button>
+    <button class="btn btn-secondary" onclick="exportHTML()">HTML 공유파일</button>
+    <button class="btn btn-secondary" onclick="exportJSON()">JSON보내기</button>
+    <button class="btn btn-secondary" onclick="document.getElementById('jsonImport').click()">JSON 가져오기</button>
+    <input type="file" id="jsonImport" class="file-input" accept=".json" onchange="importJSON(event)">
+    <button class="btn btn-primary" onclick="exportExcel()">엑셀 다운로드</button>
+    <button class="btn btn-primary" onclick="document.getElementById('excelImport').click()">엑셀 업로드</button>
+    <input type="file" id="excelImport" class="file-input" accept=".xlsx,.xls" onchange="importExcel(event)">
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" data-tab="dashboard" onclick="switchTab('dashboard')">대시보드</div>
+    <div class="tab" data-tab="dataentry" onclick="switchTab('dataentry')">데이터 입력</div>
+  </div>
+
+  <main id="mainContent">
+    <!-- 대시보드 -->
+    <div id="panel-dashboard" class="panel active">
+      <div class="summary-bar" id="summaryBar"></div>
+      <div id="dashboardContent"></div>
+    </div>
+
+    <!-- Excel-style 데이터 입력 -->
+    <div id="panel-dataentry" class="panel">
+      <div class="excel-workbook">
+        <div class="excel-titlebar">디지털 L&D센터 · 데이터 입력 관리</div>
+        <div class="excel-formula-bar">
+          <div class="excel-cell-ref" id="excelCellRef">A1</div>
+          <div class="excel-fx">fx</div>
+          <input type="text" class="excel-formula-input" id="excelFormulaInput" placeholder="셀 값 입력 후 Enter">
+        </div>
+        <div class="excel-ribbon">
+          <button class="btn btn-primary" onclick="excelAddRows(1)">행 추가</button>
+          <button class="btn btn-secondary" onclick="excelAddRows(5)">+5행</button>
+          <button class="btn btn-secondary" onclick="excelDeleteSelectedRows()">선택 행 삭제</button>
+          <span class="sep"></span>
+          <button class="btn btn-secondary" onclick="saveData(true)">저장</button>
+          <button class="btn btn-secondary" onclick="exportExcel()">엑셀 다운로드</button>
+          <button class="btn btn-secondary" onclick="document.getElementById('excelImport').click()">엑셀 업로드</button>
+          <span class="excel-ribbon-hint">Tab/Enter 이동 · Ctrl+C/V 복사·붙여넣기 · 방향키 셀 이동</span>
+        </div>
+        <div class="excel-grid-wrap" id="excelGridWrap">
+          <table class="excel-grid" id="excelGrid"></table>
+        </div>
+        <div class="excel-sheet-tabs" id="excelSheetTabs"></div>
+        <div class="excel-statusbar">
+          <span id="excelStatusRows">행: 0</span>
+          <span id="excelStatusSheet">시트: 교육과정</span>
+          <span>준비</span>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>© Hanwha Group · <span>Energy for Life</span> · 디지털 L&D센터</footer>
+
+  <div class="toast" id="toast"></div>
+
+<script>
+const STORAGE_KEY = 'ld_kpi_data_v1';
+
+const COURSE_TYPE_OPTIONS = [
+  { v: 'offline', l: '집합' },
+  { v: 'online', l: '온라인' },
+  { v: 'digital_offline', l: '디지털집합' },
+  { v: 'digital_online', l: '디지털온라인' },
+];
+const OFFLINE_TYPES = ['offline', 'digital_offline'];
+const ONLINE_TYPES = ['online', 'digital_online'];
+const DIGITAL_TYPES = ['digital_offline', 'digital_online'];
+
+function normalizeCourseType(raw) {
+  const s = String(raw || '').trim();
+  const byLabel = COURSE_TYPE_OPTIONS.find(o => o.l === s);
+  if (byLabel) return byLabel.v;
+  const byVal = COURSE_TYPE_OPTIONS.find(o => o.v === s);
+  if (byVal) return byVal.v;
+  if (s === 'digital' || s === '디지털') return 'digital_offline';
+  if (s === '집합교육') return 'offline';
+  return 'offline';
+}
+
+function courseTypeLabel(type) {
+  const t = normalizeCourseType(type);
+  return COURSE_TYPE_OPTIONS.find(o => o.v === t)?.l || t;
+}
+
+function migrateCourseTypes(courses) {
+  (courses || []).forEach(c => { c.type = normalizeCourseType(c.type); });
+}
+
+const KPI_DEFS = [
+  { cat: '운영 효율성', id: 'implRate', name: '교육 실시율', desc: '계획 대비 실제 운영 비율', target: 90, unit: '%', higher: true },
+  { cat: '학습 참여', id: 'offlineRate', name: '집합교육 참여율(년)', desc: '집합+디지털집합 수강인원 / 총 인원', target: 100, unit: '%', higher: true },
+  { cat: '학습 참여', id: 'onlineRate', name: '온라인교육 참여율(년)', desc: '온라인+디지털온라인 수강인원 / 총 인원', target: 100, unit: '%', higher: true },
+  { cat: '교육 품질', id: 'satisfaction', name: '교육 만족도', desc: '만족도 5점 기준 · 수강인원 가중평균 (0·미입력 제외)', target: 4.3, unit: '점', higher: true },
+  { cat: '교육 품질', id: 'application', name: '실무적용 의향도', desc: '실무적용 5점 기준 · 수강인원 가중평균 (0·미입력 제외)', target: 4.0, unit: '점', higher: true },
+  { cat: 'DX / AX', id: 'digitalRate', name: '디지털 교육 참여율(년)', desc: '디지털집합+디지털온라인 수강인원 / 총 인원', target: 100, unit: '%', higher: true },
+  { cat: 'DX / AX', id: 'leaderActivity', name: '디지털 리더 활동 수', desc: '활동 수 / 디지털 리더 수 (건/인)', target: 10, unit: '건/인', higher: true },
+  { cat: 'DX / AX', id: 'leaderRatio', name: '디지털리더 양성 비율', desc: '월간 양성수 합계(또는 기본설정 리더 수) / 총 인원', target: 10, unit: '%', higher: true },
+  { cat: '혁신', id: 'innovation', name: '혁신활동 수', desc: '분기별 혁신활동 건수', target: 1, unit: '건/분기', higher: true },
+];
+
+function defaultKpiTargets() {
+  const t = {};
+  KPI_DEFS.forEach(k => { t[k.id] = k.target; });
+  return t;
+}
+
+function migrateSettings(settings) {
+  if (!settings.kpiTargets) {
+    settings.kpiTargets = defaultKpiTargets();
+    if (settings.leaderActivityTarget != null) settings.kpiTargets.leaderActivity = settings.leaderActivityTarget;
+    if (settings.innovationTarget != null) settings.kpiTargets.innovation = settings.innovationTarget;
+  }
+  KPI_DEFS.forEach(k => {
+    if (settings.kpiTargets[k.id] == null) settings.kpiTargets[k.id] = k.target;
+  });
+  return settings;
+}
+
+function getKpiTarget(id) {
+  const def = KPI_DEFS.find(k => k.id === id);
+  if (data.settings.kpiTargets && data.settings.kpiTargets[id] != null && !isNaN(data.settings.kpiTargets[id])) {
+    return data.settings.kpiTargets[id];
+  }
+  return def ? def.target : 0;
+}
+
+function formatTargetLabel(target, unit) {
+  if (unit === '%') return target + '%';
+  if (unit === '점') return target + '점';
+  if (unit === '건/인') return target + '건/인';
+  if (unit === '건/분기') return target + '건 이상';
+  return String(target);
+}
+
+let data = loadData();
+
+function defaultData() {
+  const y = new Date().getFullYear();
+  return {
+    settings: {
+      totalEmployees: 220,
+      digitalLeaders: 22,
+      kpiTargets: defaultKpiTargets()
+    },
+    courses: [
+      { id: 'demo1', year: y, month: 1, name: 'AI 기초 집합교육', type: 'offline', planned: true, actual: true, trainees: 35, satisfaction: 4.5, application: 4.2 },
+      { id: 'demo2', year: y, month: 2, name: '데이터 분석 온라인', type: 'online', planned: true, actual: true, trainees: 48, satisfaction: 4.1, application: 3.9 },
+      { id: 'demo3', year: y, month: 3, name: 'DX 리더십 워크숍', type: 'digital_offline', planned: true, actual: true, trainees: 22, satisfaction: 4.6, application: 4.4 },
+      { id: 'demo4', year: y, month: 4, name: 'RPA 실무교육', type: 'digital_online', planned: true, actual: false, trainees: 0, satisfaction: null, application: null },
+    ],
+    monthly: [
+      { id: 'm1', year: y, month: 1, leaderActivities: 18, leaderCultivation: 2, innovationActivities: 1 },
+      { id: 'm2', year: y, month: 2, leaderActivities: 22, leaderCultivation: 1, innovationActivities: 0 },
+      { id: 'm3', year: y, month: 3, leaderActivities: 25, leaderCultivation: 3, innovationActivities: 2 },
+      { id: 'm4', year: y, month: 4, leaderActivities: 15, leaderCultivation: 1, innovationActivities: 1 },
+    ]
+  };
+}
+
+function migrateMonthly(monthly) {
+  (monthly || []).forEach(m => {
+    if (m.leaderCultivation == null) m.leaderCultivation = 0;
+  });
+}
+
+function loadData() {
+  if (window.__EMBEDDED_DATA__) {
+    window.__EMBEDDED_DATA__.settings = migrateSettings(window.__EMBEDDED_DATA__.settings || {});
+    migrateCourseTypes(window.__EMBEDDED_DATA__.courses);
+    migrateMonthly(window.__EMBEDDED_DATA__.monthly);
+    return window.__EMBEDDED_DATA__;
+  }
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      parsed.settings = migrateSettings(parsed.settings || {});
+      migrateCourseTypes(parsed.courses);
+      migrateMonthly(parsed.monthly);
+      return parsed;
+    }
+  } catch (e) { /* ignore */ }
+  const d = defaultData();
+  migrateCourseTypes(d.courses);
+  migrateMonthly(d.monthly);
+  return d;
+}
+
+function persist() {
+  if (document.getElementById('panel-dataentry')?.classList.contains('active')) {
+    syncExcelToData();
+  }
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+
+function saveData(showMsg) {
+  if (document.getElementById('panel-dataentry')?.classList.contains('active')) {
+    syncExcelToData();
+  }
+  persist();
+  if (showMsg) showToast('데이터가 저장되었습니다.');
+  renderAll();
+}
+
+function autoSave() {
+  persist();
+  renderDashboard();
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+
+function getSelectedYear() { return parseInt(document.getElementById('selYear').value); }
+function getSelectedMonth() { return parseInt(document.getElementById('selMonth').value); }
+
+function filterCourses(year, month) {
+  return data.courses.filter(c => {
+    if (c.year !== year) return false;
+    if (month === 0) return true;
+    return c.month === month;
+  });
+}
+
+function filterMonthly(year, month) {
+  return data.monthly.filter(m => {
+    if (m.year !== year) return false;
+    if (month === 0) return true;
+    return m.month === month;
+  });
+}
+
+function hasValidScore(val) {
+  if (val == null || val === '') return false;
+  const n = parseFloat(val);
+  return !isNaN(n) && n > 0;
+}
+
+/** 수강인원 가중 평균 — 점수 0·미입력 과정은 모수에서 제외 */
+function weightedScoreAvg(courses, field) {
+  let weightedSum = 0;
+  let traineeSum = 0;
+  courses.forEach(c => {
+    if (!hasValidScore(c[field])) return;
+    const trainees = c.trainees || 0;
+    if (trainees <= 0) return;
+    weightedSum += parseFloat(c[field]) * trainees;
+    traineeSum += trainees;
+  });
+  return traineeSum > 0 ? weightedSum / traineeSum : null;
+}
+
+function calcKPIs(year, month) {
+  const courses = filterCourses(year, month);
+  const monthly = filterMonthly(year, month);
+  const s = data.settings;
+  const total = s.totalEmployees || 1;
+  const leaders = s.digitalLeaders || 22;
+
+  const planned = courses.filter(c => c.planned);
+  const actual = courses.filter(c => c.actual);
+  const implRate = planned.length > 0 ? (actual.length / planned.length) * 100 : null;
+
+  const offlineTrainees = courses
+    .filter(c => OFFLINE_TYPES.includes(normalizeCourseType(c.type)))
+    .reduce((s, c) => s + (c.trainees || 0), 0);
+  const onlineTrainees = courses
+    .filter(c => ONLINE_TYPES.includes(normalizeCourseType(c.type)))
+    .reduce((s, c) => s + (c.trainees || 0), 0);
+  const digitalTrainees = courses
+    .filter(c => DIGITAL_TYPES.includes(normalizeCourseType(c.type)))
+    .reduce((s, c) => s + (c.trainees || 0), 0);
+
+  const satisfaction = weightedScoreAvg(courses, 'satisfaction');
+  const application = weightedScoreAvg(courses, 'application');
+
+  const leaderActs = monthly.reduce((s, m) => s + (m.leaderActivities || 0), 0);
+  const leaderActivity = leaders > 0 ? leaderActs / leaders : null;
+
+  const leaderCultivationSum = monthly.reduce((s, m) => s + (m.leaderCultivation || 0), 0);
+  const leaderCount = leaderCultivationSum > 0 ? leaderCultivationSum : leaders;
+  const leaderRatio = (leaderCount / total) * 100;
+
+  const innovationTotal = monthly.reduce((s, m) => s + (m.innovationActivities || 0), 0);
+  const quarterSummary = {};
+  monthly.forEach(m => {
+    const q = Math.ceil(m.month / 3);
+    const key = 'Q' + q;
+    quarterSummary[key] = (quarterSummary[key] || 0) + (m.innovationActivities || 0);
+  });
+
+  return {
+    implRate,
+    offlineRate: (offlineTrainees / total) * 100,
+    onlineRate: (onlineTrainees / total) * 100,
+    satisfaction,
+    application,
+    digitalRate: (digitalTrainees / total) * 100,
+    leaderActivity,
+    leaderRatio,
+    innovation: month === 0 ? innovationTotal : monthly.reduce((s, m) => s + (m.innovationActivities || 0), 0),
+    _meta: { planned: planned.length, actual: actual.length, offlineTrainees, onlineTrainees, digitalTrainees, leaderActs, leaderCultivationSum, leaderCount, innovationTotal, quarterSummary }
+  };
+}
+
+function formatValue(val, unit) {
+  if (val == null || isNaN(val)) return '-';
+  if (unit === '%') return val.toFixed(1);
+  if (unit === '점') return val.toFixed(2);
+  if (unit === '건/인') return val.toFixed(1);
+  return val.toFixed(0);
+}
+
+function getStatus(val, target, higher) {
+  if (val == null || isNaN(val)) return '';
+  return higher ? (val >= target ? 'achieved' : (val >= target * 0.8 ? 'warning' : 'danger')) : '';
+}
+
+function renderDashboard() {
+  const year = getSelectedYear();
+  const month = getSelectedMonth();
+  const kpis = calcKPIs(year, month);
+  const periodLabel = month === 0 ? `${year}년 연간 누적` : `${year}년 ${month}월`;
+
+  const summary = document.getElementById('summaryBar');
+  summary.innerHTML = `
+    <div class="summary-item">기간: <strong>${periodLabel}</strong></div>
+    <div class="summary-item">총 인원: <strong>${data.settings.totalEmployees}</strong>명</div>
+    <div class="summary-item">교육과정: <strong>${filterCourses(year, month).length}</strong>건 (실시 ${kpis._meta.actual}/${kpis._meta.planned})</div>
+    <div class="summary-item">디지털 리더: <strong>${kpis._meta.leaderCount}</strong>명${kpis._meta.leaderCultivationSum > 0 ? ' (월간 양성 ' + kpis._meta.leaderCultivationSum + '명)' : ''}</div>
+    ${month === 0 && Object.keys(kpis._meta.quarterSummary).length ? `<div class="summary-item">분기별 혁신: ${Object.entries(kpis._meta.quarterSummary).map(([q,n]) => q + ' ' + n + '건').join(' · ')}</div>` : ''}
+  `;
+
+  const cats = [...new Set(KPI_DEFS.map(k => k.cat))];
+  let html = '';
+  cats.forEach(cat => {
+    const items = KPI_DEFS.filter(k => k.cat === cat);
+    html += `<div class="category-section"><div class="category-title">${cat}</div><div class="kpi-grid">`;
+    items.forEach(k => {
+      const target = getKpiTarget(k.id);
+      const val = kpis[k.id];
+      const status = getStatus(val, target, k.higher);
+      const achieved = val != null && !isNaN(val) && val >= target;
+      html += `
+        <div class="kpi-card ${status}">
+          <div class="kpi-name">${k.name}</div>
+          <div><span class="kpi-value">${formatValue(val, k.unit)}</span> <span class="kpi-unit">${k.unit}</span></div>
+          <div class="kpi-target">목표: ${formatTargetLabel(target, k.unit)} ${k.id === 'leaderRatio' ? '(27년 限)' : ''}</div>
+          <div class="kpi-desc">${k.desc}</div>
+          ${val != null && !isNaN(val) ? `<span class="status-badge ${achieved ? 'ok' : 'ng'}">${achieved ? '목표 달성' : '미달'}</span>` : '<span class="status-badge ng">데이터 없음</span>'}
+        </div>`;
+    });
+    html += '</div></div>';
+  });
+  document.getElementById('dashboardContent').innerHTML = html;
+}
+
+function renderCourses() { /* excel grid handles */ }
+function renderMonthly() { /* excel grid handles */ }
+function renderSettings() { /* excel grid handles */ }
+
+/* ══════════════════════════════════════════
+   Excel-style spreadsheet engine
+   ══════════════════════════════════════════ */
+const COL_LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+function colLetter(i) {
+  if (i < 26) return COL_LETTERS[i];
+  return COL_LETTERS[Math.floor(i / 26) - 1] + COL_LETTERS[i % 26];
+}
+
+const EXCEL_SHEETS = {
+  courses: {
+    label: '교육과정',
+    minRows: 15,
+    columns: [
+      { key: 'year', title: '연도', width: 58, type: 'year' },
+      { key: 'month', title: '월', width: 42, type: 'month' },
+      { key: 'name', title: '과정명', width: 200, type: 'text' },
+      { key: 'type', title: '유형', width: 96, type: 'select', options: COURSE_TYPE_OPTIONS },
+      { key: 'planned', title: '계획', width: 48, type: 'yn' },
+      { key: 'actual', title: '실시', width: 48, type: 'yn' },
+      { key: 'trainees', title: '수강인원', width: 68, type: 'number' },
+      { key: 'satisfaction', title: '만족도', width: 58, type: 'decimal' },
+      { key: 'application', title: '실무적용', width: 58, type: 'decimal' },
+    ],
+    getRows: () => data.courses,
+    setRows: (rows) => { data.courses = rows; },
+    newRow: (isPad) => ({
+      id: uid(),
+      year: isPad ? null : getSelectedYear(),
+      month: isPad ? null : excelDefaultMonth(),
+      name: '', type: 'offline', planned: true, actual: false, trainees: 0,
+      satisfaction: null, application: null
+    }),
+    isEmpty: (row) => !String(row.name || '').trim() && !(row.trainees > 0)
+  },
+  monthly: {
+    label: '월간지표',
+    minRows: 12,
+    columns: [
+      { key: 'year', title: '연도', width: 58, type: 'year' },
+      { key: 'month', title: '월', width: 42, type: 'month' },
+      { key: 'leaderActivities', title: '리더활동수', width: 76, type: 'number' },
+      { key: 'leaderCultivation', title: '리더양성수', width: 76, type: 'number' },
+      { key: 'innovationActivities', title: '혁신활동수', width: 76, type: 'number' },
+    ],
+    getRows: () => data.monthly,
+    setRows: (rows) => { data.monthly = rows; },
+    newRow: (isPad) => ({
+      id: uid(),
+      year: isPad ? null : getSelectedYear(),
+      month: isPad ? null : excelDefaultMonth(),
+      leaderActivities: 0, leaderCultivation: 0, innovationActivities: 0
+    }),
+    isEmpty: (row) => !(row.month >= 1 && row.month <= 12 && row.year) &&
+      !(row.leaderActivities > 0) && !(row.leaderCultivation > 0) && !(row.innovationActivities > 0)
+  },
+  settings: {
+    label: '기본설정',
+    minRows: 13,
+    columns: [
+      { key: 'category', title: '구분', width: 88, type: 'readonly' },
+      { key: 'label', title: '항목/지표', width: 168, type: 'readonly' },
+      { key: 'value', title: '목표/값', width: 72, type: 'decimal' },
+      { key: 'unit', title: '단위', width: 52, type: 'readonly' },
+      { key: 'note', title: '설명', width: 200, type: 'readonly' },
+    ],
+    getRows: () => {
+      const basic = [
+        { category: '기본', label: '총 인원', value: data.settings.totalEmployees, unit: '명', note: '참여율·양성비율 계산용', settingKey: 'totalEmployees' },
+        { category: '기본', label: '디지털 리더 수', value: data.settings.digitalLeaders, unit: '명', note: '리더 활동 KPI · 양성수 미입력 시 양성비율 계산용', settingKey: 'digitalLeaders' },
+      ];
+      const targets = KPI_DEFS.map(k => ({
+        category: k.cat,
+        label: k.name,
+        value: getKpiTarget(k.id),
+        unit: k.unit,
+        note: k.desc,
+        kpiId: k.id
+      }));
+      return [...basic, ...targets];
+    },
+    setRows: () => {},
+    newRow: () => null,
+    isEmpty: () => true,
+    isSettings: true
+  }
+};
+
+let excelActiveSheet = 'courses';
+let excelSelection = { row: 0, col: 0 };
+let excelGridRows = [];
+let excelEditing = false;
+
+function getActiveSheetDef() { return EXCEL_SHEETS[excelActiveSheet]; }
+
+function excelDefaultMonth() {
+  const m = getSelectedMonth();
+  return m >= 1 && m <= 12 ? m : new Date().getMonth() + 1;
+}
+
+function markRowEdited(row) {
+  if (row) row._edited = true;
+}
+
+function parseMonthValue(raw) {
+  const s = String(raw).trim().replace(/월$/, '');
+  if (!s) return null;
+  const n = parseInt(s, 10);
+  if (isNaN(n) || n < 1 || n > 12) return null;
+  return n;
+}
+
+function parseYearValue(raw) {
+  const s = String(raw).trim().replace(/년$/, '');
+  if (!s) return null;
+  const n = parseInt(s, 10);
+  if (isNaN(n) || n < 2000 || n > 2100) return null;
+  return n;
+}
+
+function cellDisplayValue(row, colDef) {
+  const v = row[colDef.key];
+  if (colDef.type === 'yn') return v ? 'Y' : (v === false ? 'N' : '');
+  if (colDef.type === 'select') {
+    if (colDef.key === 'type') return courseTypeLabel(v);
+    const opt = colDef.options.find(o => o.v === v);
+    return opt ? opt.l : (v || '');
+  }
+  if (colDef.type === 'month') {
+    if (v == null || v === '' || isNaN(v)) return '';
+    return String(v);
+  }
+  if (colDef.type === 'year') {
+    if (v == null || v === '' || isNaN(v)) return '';
+    return String(v);
+  }
+  if (v == null || v === '') return '';
+  return String(v);
+}
+
+function parseCellValue(raw, colDef) {
+  const s = String(raw).trim();
+  if (colDef.type === 'yn') {
+    if (!s) return false;
+    return s === 'Y' || s === 'y' || s === '1' || s === '예' || s === 'true';
+  }
+  if (colDef.type === 'select') {
+    if (colDef.key === 'type') return normalizeCourseType(raw);
+    const byLabel = colDef.options.find(o => o.l === s);
+    if (byLabel) return byLabel.v;
+    const byVal = colDef.options.find(o => o.v === s);
+    return byVal ? byVal.v : s;
+  }
+  if (colDef.type === 'month') return parseMonthValue(s);
+  if (colDef.type === 'year') return parseYearValue(s);
+  if (colDef.type === 'number' || colDef.type === 'decimal') {
+    if (!s) return colDef.key === 'trainees' || colDef.key.includes('Activities') || colDef.key === 'leaderCultivation' ? 0 : null;
+    const n = parseFloat(s);
+    return isNaN(n) ? 0 : n;
+  }
+  return s;
+}
+
+function syncExcelToData() {
+  const def = getActiveSheetDef();
+  if (def.isSettings) {
+    if (!data.settings.kpiTargets) data.settings.kpiTargets = defaultKpiTargets();
+    excelGridRows.forEach(r => {
+      if (r.settingKey) data.settings[r.settingKey] = parseFloat(r.value) || 0;
+      if (r.kpiId) data.settings.kpiTargets[r.kpiId] = parseFloat(r.value);
+    });
+    return;
+  }
+  const cols = def.columns;
+  const saved = [];
+  excelGridRows.forEach(row => {
+    if (def.isEmpty(row)) return;
+    const copy = { ...row };
+    delete copy._edited;
+    if (!copy.id) copy.id = uid();
+    if (copy.type) copy.type = normalizeCourseType(copy.type);
+    if (copy.month != null) copy.month = parseInt(copy.month, 10);
+    if (copy.year != null) copy.year = parseInt(copy.year, 10);
+    saved.push(copy);
+  });
+  def.setRows(saved);
+}
+
+function buildExcelGridRows() {
+  const def = getActiveSheetDef();
+  const source = def.getRows();
+  excelGridRows = source.map(r => ({ ...r }));
+  const pad = Math.max(def.minRows - excelGridRows.length, 3);
+  for (let i = 0; i < pad; i++) {
+    const nr = def.newRow(true);
+    if (nr) excelGridRows.push(nr);
+  }
+}
+
+function renderExcelSheetTabs() {
+  document.getElementById('excelSheetTabs').innerHTML = Object.entries(EXCEL_SHEETS)
+    .map(([id, s]) => `<div class="excel-sheet-tab ${id === excelActiveSheet ? 'active' : ''}" onclick="switchExcelSheet('${id}')"><span class="sheet-icon"></span>${s.label}</div>`)
+    .join('');
+  document.getElementById('excelStatusSheet').textContent = '시트: ' + getActiveSheetDef().label;
+}
+
+function renderExcelGrid(reload = true) {
+  const def = getActiveSheetDef();
+  if (reload) buildExcelGridRows();
+  const cols = def.columns;
+  const table = document.getElementById('excelGrid');
+  let html = '<colgroup>';
+  html += '<col style="width:42px">';
+  cols.forEach(c => { html += `<col style="width:${c.width}px">`; });
+  html += '</colgroup>';
+
+  html += '<thead><tr><th class="corner"></th>';
+  cols.forEach((c, i) => { html += `<th class="col-letter">${colLetter(i)}</th>`; });
+  html += '</tr><tr><th class="corner"></th>';
+  cols.forEach(c => { html += `<th class="col-title">${c.title}</th>`; });
+  html += '</tr></thead><tbody>';
+
+  excelGridRows.forEach((row, ri) => {
+    html += `<tr data-row="${ri}"><td class="row-num">${ri + 1}</td>`;
+    cols.forEach((col, ci) => {
+      const sel = excelSelection.row === ri && excelSelection.col === ci ? ' selected' : '';
+      const ro = col.type === 'readonly' ? ' readonly' : '';
+      const val = esc(cellDisplayValue(row, col));
+      html += `<td class="data-cell${sel}${ro}" data-row="${ri}" data-col="${ci}" tabindex="-1">${val}</td>`;
+    });
+    html += '</tr>';
+  });
+  html += '</tbody>';
+  table.innerHTML = html;
+
+  document.getElementById('excelStatusRows').textContent = '행: ' + excelGridRows.length;
+  updateFormulaBar();
+  bindExcelGridEvents();
+}
+
+function updateFormulaBar() {
+  const def = getActiveSheetDef();
+  const col = def.columns[excelSelection.col];
+  if (!col) return;
+  const ref = colLetter(excelSelection.col) + (excelSelection.row + 1);
+  document.getElementById('excelCellRef').textContent = ref;
+  const row = excelGridRows[excelSelection.row];
+  document.getElementById('excelFormulaInput').value = row ? cellDisplayValue(row, col) : '';
+}
+
+function selectExcelCell(row, col, scrollIntoView) {
+  const def = getActiveSheetDef();
+  row = Math.max(0, Math.min(row, excelGridRows.length - 1));
+  col = Math.max(0, Math.min(col, def.columns.length - 1));
+  excelSelection = { row, col };
+  document.querySelectorAll('#excelGrid td.data-cell').forEach(td => {
+    const r = +td.dataset.row, c = +td.dataset.col;
+    td.classList.toggle('selected', r === row && c === col);
+    if (r === row && c === col && scrollIntoView) td.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+  });
+  updateFormulaBar();
+}
+
+function commitFormulaBar() {
+  const def = getActiveSheetDef();
+  const col = def.columns[excelSelection.col];
+  const row = excelGridRows[excelSelection.row];
+  if (!col || !row || col.type === 'readonly') return;
+  const raw = document.getElementById('excelFormulaInput').value;
+  applyCellValue(row, col, raw, def);
+  syncExcelToData();
+  persist();
+  renderExcelGrid(false);
+  updateFormulaBar();
+  selectExcelCell(excelSelection.row, excelSelection.col, false);
+  renderDashboard();
+}
+
+function applyCellValue(rowData, colDef, raw, def) {
+  if (def.isSettings && rowData.settingKey) {
+    rowData.value = parseFloat(raw) || 0;
+    data.settings[rowData.settingKey] = rowData.value;
+  } else if (def.isSettings && rowData.kpiId) {
+    rowData.value = parseFloat(raw);
+    if (!data.settings.kpiTargets) data.settings.kpiTargets = defaultKpiTargets();
+    if (!isNaN(rowData.value)) data.settings.kpiTargets[rowData.kpiId] = rowData.value;
+  } else if (colDef.type === 'select') {
+    rowData[colDef.key] = raw;
+    markRowEdited(rowData);
+  } else {
+    rowData[colDef.key] = parseCellValue(raw, colDef);
+    markRowEdited(rowData);
+  }
+}
+
+function finishCellEdit(move) {
+  syncExcelToData();
+  persist();
+  renderExcelGrid(false);
+  const { row, col } = excelSelection;
+  if (move === 'down') selectExcelCell(row + 1, col, true);
+  else if (move === 'right') selectExcelCell(row, col + 1, true);
+  else selectExcelCell(row, col, false);
+  renderDashboard();
+}
+
+function startCellEdit(row, col) {
+  const def = getActiveSheetDef();
+  const colDef = def.columns[col];
+  const rowData = excelGridRows[row];
+  if (!colDef || colDef.type === 'readonly') return;
+  excelEditing = true;
+  const td = document.querySelector(`#excelGrid td[data-row="${row}"][data-col="${col}"]`);
+  if (!td) return;
+  td.classList.add('editing');
+  const cur = cellDisplayValue(rowData, colDef);
+  if (colDef.type === 'select') {
+    td.innerHTML = '<select>' + colDef.options.map(o =>
+      `<option value="${o.v}" ${rowData[colDef.key]===o.v?'selected':''}>${o.l}</option>`
+    ).join('') + '</select>';
+    const sel = td.querySelector('select');
+    sel.focus();
+    sel.addEventListener('change', () => { applyCellValue(rowData, colDef, sel.value, def); endCellEdit(); });
+    sel.addEventListener('blur', endCellEdit);
+    sel.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === 'Tab') { e.preventDefault(); endCellEdit(e.key === 'Tab' ? 'right' : 'down'); }});
+  } else {
+    td.innerHTML = `<input type="text" value="${esc(cur)}">`;
+    const inp = td.querySelector('input');
+    inp.focus();
+    inp.select();
+    inp.addEventListener('blur', () => endCellEdit());
+    inp.addEventListener('keydown', e => {
+      if (e.key === 'Enter') { e.preventDefault(); applyCellValue(rowData, colDef, inp.value, def); endCellEdit('down'); }
+      else if (e.key === 'Tab') { e.preventDefault(); applyCellValue(rowData, colDef, inp.value, def); endCellEdit('right'); }
+      else if (e.key === 'Escape') { excelEditing = false; renderExcelGrid(false); selectExcelCell(row, col, false); }
+    });
+  }
+}
+
+function endCellEdit(move) {
+  if (!excelEditing) return;
+  const def = getActiveSheetDef();
+  const colDef = def.columns[excelSelection.col];
+  const row = excelSelection.row;
+  const td = document.querySelector('#excelGrid td.data-cell.editing');
+  if (td) {
+    const inp = td.querySelector('input, select');
+    if (inp && colDef) {
+      applyCellValue(excelGridRows[row], colDef, inp.value, def);
+    }
+  }
+  excelEditing = false;
+  finishCellEdit(move);
+}
+
+function bindExcelGridEvents() {
+  const wrap = document.getElementById('excelGridWrap');
+  const grid = document.getElementById('excelGrid');
+
+  grid.querySelectorAll('td.data-cell').forEach(td => {
+    td.addEventListener('mousedown', e => {
+      if (excelEditing) return;
+      const row = +td.dataset.row, col = +td.dataset.col;
+      selectExcelCell(row, col, false);
+    });
+    td.addEventListener('dblclick', () => {
+      startCellEdit(+td.dataset.row, +td.dataset.col);
+    });
+  });
+
+  wrap.onkeydown = (e) => {
+    if (excelEditing) return;
+    const { row, col } = excelSelection;
+    const def = getActiveSheetDef();
+    if (e.key === 'ArrowUp') { e.preventDefault(); selectExcelCell(row - 1, col, true); }
+    else if (e.key === 'ArrowDown') { e.preventDefault(); selectExcelCell(row + 1, col, true); }
+    else if (e.key === 'ArrowLeft') { e.preventDefault(); selectExcelCell(row, col - 1, true); }
+    else if (e.key === 'ArrowRight' || e.key === 'Tab') { e.preventDefault(); selectExcelCell(row, col + (e.key === 'Tab' ? 1 : 1), true); }
+    else if (e.key === 'Enter') { e.preventDefault(); startCellEdit(row, col); }
+    else if (e.key === 'Delete' || e.key === 'Backspace') {
+      const colDef = def.columns[col];
+      if (colDef && colDef.type !== 'readonly') {
+        const r = excelGridRows[row];
+        if (def.isSettings && r.settingKey) { r.value = 0; data.settings[r.settingKey] = 0; }
+        else if (def.isSettings && r.kpiId) {
+          r.value = KPI_DEFS.find(k => k.id === r.kpiId)?.target || 0;
+          if (!data.settings.kpiTargets) data.settings.kpiTargets = defaultKpiTargets();
+          data.settings.kpiTargets[r.kpiId] = r.value;
+        }
+        else if (colDef.type === 'yn') r[colDef.key] = false;
+        else if (colDef.type === 'month' || colDef.type === 'year') r[colDef.key] = null;
+        else if (colDef.type === 'number') r[colDef.key] = 0;
+        else r[colDef.key] = colDef.type === 'decimal' ? null : '';
+        markRowEdited(r);
+        syncExcelToData(); persist(); renderExcelGrid(false); selectExcelCell(row, col, false); renderDashboard();
+      }
+    }
+    else if (e.key.length === 1 && !e.ctrlKey && !e.metaKey) {
+      startCellEdit(row, col);
+      setTimeout(() => {
+        const inp = document.querySelector('#excelGrid td.editing input');
+        if (inp) { inp.value = e.key; inp.setSelectionRange(1, 1); }
+      }, 0);
+    }
+  };
+
+  wrap.onpaste = (e) => {
+    e.preventDefault();
+    const text = (e.clipboardData || window.clipboardData).getData('text');
+    if (!text) return;
+    pasteExcelData(text);
+  };
+
+  wrap.oncopy = (e) => {
+    const def = getActiveSheetDef();
+    const { row, col } = excelSelection;
+    const lines = [];
+    const r = excelGridRows[row];
+    if (r) {
+      const vals = def.columns.map(c => cellDisplayValue(r, c));
+      lines.push(vals.join('\t'));
+    }
+    e.clipboardData.setData('text/plain', lines.join('\n'));
+    e.preventDefault();
+  };
+
+  wrap.setAttribute('tabindex', '0');
+}
+
+function pasteExcelData(text) {
+  const def = getActiveSheetDef();
+  if (def.isSettings) return;
+  const { row, col } = excelSelection;
+  const pasteRows = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n').filter((l, i, a) => i < a.length - 1 || l);
+  pasteRows.forEach((line, ri) => {
+    const targetRow = row + ri;
+    while (targetRow >= excelGridRows.length) {
+      const nr = def.newRow();
+      if (nr) excelGridRows.push(nr);
+      else break;
+    }
+    const cells = line.split('\t');
+    cells.forEach((cell, ci) => {
+      const targetCol = col + ci;
+      if (targetCol >= def.columns.length) return;
+      const colDef = def.columns[targetCol];
+      if (colDef.type === 'readonly') return;
+      excelGridRows[targetRow][colDef.key] = parseCellValue(cell, colDef);
+      markRowEdited(excelGridRows[targetRow]);
+    });
+  });
+  syncExcelToData();
+  persist();
+  renderExcelGrid(false);
+  selectExcelCell(row, col, true);
+  renderDashboard();
+  showToast('붙여넣기 완료');
+}
+
+function switchExcelSheet(id) {
+  syncExcelToData();
+  excelActiveSheet = id;
+  excelSelection = { row: 0, col: 0 };
+  renderExcelSheetTabs();
+  renderExcelGrid();
+}
+
+function excelAddRows(n) {
+  const def = getActiveSheetDef();
+  if (def.isSettings) return;
+  for (let i = 0; i < n; i++) {
+    const nr = def.newRow(false);
+    if (nr) excelGridRows.push(nr);
+  }
+  renderExcelGrid(false);
+  showToast(n + '행 추가됨');
+}
+
+function excelDeleteSelectedRows() {
+  const def = getActiveSheetDef();
+  if (def.isSettings) return;
+  const idx = excelSelection.row;
+  const rows = def.getRows();
+  if (idx < rows.length) {
+    rows.splice(idx, 1);
+    def.setRows(rows);
+    persist();
+    excelSelection.row = Math.max(0, idx - 1);
+    renderExcelGrid();
+    renderDashboard();
+    showToast('행이 삭제되었습니다.');
+  } else {
+    showToast('빈 행입니다.');
+  }
+}
+
+function initExcelUI() {
+  document.getElementById('excelFormulaInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); commitFormulaBar(); }
+  });
+  document.getElementById('excelFormulaInput').addEventListener('change', commitFormulaBar);
+  renderExcelSheetTabs();
+  renderExcelGrid();
+}
+
+function esc(s) { return String(s ?? '').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+
+function syncSettingsFromUI() {
+  /* settings managed via excel sheet */
+}
+
+function switchTab(name) {
+  const wasData = document.getElementById('panel-dataentry').classList.contains('active');
+  if (wasData && name !== 'dataentry') syncExcelToData();
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
+  document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.id === 'panel-' + name));
+  document.getElementById('mainContent').classList.toggle('excel-mode', name === 'dataentry');
+  if (name === 'dataentry') {
+    buildExcelGridRows();
+    renderExcelSheetTabs();
+    renderExcelGrid();
+    setTimeout(() => document.getElementById('excelGridWrap').focus(), 50);
+  }
+}
+
+function initYearSelect() {
+  const sel = document.getElementById('selYear');
+  const cur = new Date().getFullYear();
+  for (let y = cur - 2; y <= cur + 2; y++) {
+    const opt = document.createElement('option');
+    opt.value = y; opt.textContent = y + '년';
+    if (y === cur) opt.selected = true;
+    sel.appendChild(opt);
+  }
+  sel.addEventListener('change', renderAll);
+  document.getElementById('selMonth').addEventListener('change', renderAll);
+}
+
+function renderAll() {
+  renderDashboard();
+  if (document.getElementById('panel-dataentry')?.classList.contains('active')) {
+    syncExcelToData();
+    renderExcelGrid(true);
+  }
+}
+
+/* HTML with embedded data — share without database */
+function exportHTML() {
+  persist();
+  const embedded = '<script>window.__EMBEDDED_DATA__=' + JSON.stringify(data) + ';<\/script>';
+  let html = document.documentElement.outerHTML;
+  if (html.includes('window.__EMBEDDED_DATA__')) {
+    html = html.replace(/<script>window\.__EMBEDDED_DATA__=[\s\S]*?<\/script>/, embedded);
+  } else {
+    html = html.replace('</head>', embedded + '\n</head>');
+  }
+  const blob = new Blob(['<!DOCTYPE html>\n' + html], { type: 'text/html' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `LD_KPI_${getSelectedYear()}_공유.html`;
+  a.click();
+  showToast('데이터가 포함된 HTML 파일을 저장했습니다. 동료에게 전달하세요.');
+}
+
+/* JSON import/export */
+function exportJSON() {
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `LD_KPI_${getSelectedYear()}.json`;
+  a.click();
+  showToast('JSON 파일을 다운로드했습니다.');
+}
+
+function importJSON(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    try {
+      data = JSON.parse(ev.target.result);
+      data.settings = migrateSettings(data.settings || {});
+      migrateCourseTypes(data.courses);
+      migrateMonthly(data.monthly);
+      saveData(true);
+      showToast('JSON 데이터를 가져왔습니다.');
+    } catch (err) { showToast('JSON 파일 형식이 올바르지 않습니다.'); }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+}
+
+/* Excel import/export */
+function exportExcel() {
+  const wb = XLSX.utils.book_new();
+
+  const settingsRows = [
+    ['구분', '항목/지표', '목표/값', '단위', '키'],
+    ['기본', '총 인원', data.settings.totalEmployees, '명', 'totalEmployees'],
+    ['기본', '디지털 리더 수', data.settings.digitalLeaders, '명', 'digitalLeaders'],
+  ];
+  KPI_DEFS.forEach(k => {
+    settingsRows.push([k.cat, k.name, getKpiTarget(k.id), k.unit, k.id]);
+  });
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(settingsRows), '기본설정');
+
+  const courseRows = [['연도','월','과정명','유형','계획','실시','수강인원','만족도','실무적용']];
+  data.courses.forEach(c => {
+    courseRows.push([c.year, c.month, c.name, courseTypeLabel(c.type), c.planned?'Y':'N', c.actual?'Y':'N',
+      c.trainees||0, c.satisfaction??'', c.application??'']);
+  });
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(courseRows), '교육과정');
+
+  const monthlyRows = [['연도','월','디지털리더활동','디지털리더양성','혁신활동']];
+  data.monthly.forEach(m => {
+    monthlyRows.push([m.year, m.month, m.leaderActivities||0, m.leaderCultivation||0, m.innovationActivities||0]);
+  });
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(monthlyRows), '월간지표');
+
+  const year = getSelectedYear();
+  const month = getSelectedMonth();
+  const kpis = calcKPIs(year, month);
+  const kpiRows = [['구분','지표','현재값','목표','단위']];
+  KPI_DEFS.forEach(k => {
+    kpiRows.push([k.cat, k.name, formatValue(kpis[k.id], k.unit), getKpiTarget(k.id), k.unit]);
+  });
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(kpiRows), '대시보드요약');
+
+  XLSX.writeFile(wb, `LD_KPI_${year}${month===0?'_연간':'_'+month+'월'}.xlsx`);
+  showToast('엑셀 파일을 다운로드했습니다.');
+}
+
+function importExcel(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    try {
+      const wb = XLSX.read(ev.target.result, { type: 'array' });
+      importSettingsSheet(wb);
+      importCoursesSheet(wb);
+      importMonthlySheet(wb);
+      migrateMonthly(data.monthly);
+      saveData(true);
+      showToast('엑셀 데이터를 가져왔습니다.');
+    } catch (err) { showToast('엑셀 파일을 읽을 수 없습니다.'); }
+  };
+  reader.readAsArrayBuffer(file);
+  e.target.value = '';
+}
+
+function importSettingsSheet(wb) {
+  const sheet = wb.Sheets['기본설정'];
+  if (!sheet) return;
+  const rows = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+  if (!data.settings.kpiTargets) data.settings.kpiTargets = defaultKpiTargets();
+  for (let i = 1; i < rows.length; i++) {
+    const r = rows[i];
+    if (!r || !r.length) continue;
+    if (r.length >= 5 && r[4]) {
+      const key = String(r[4]);
+      const val = parseFloat(r[2]);
+      if (key === 'totalEmployees') data.settings.totalEmployees = val || 220;
+      else if (key === 'digitalLeaders') data.settings.digitalLeaders = val || 22;
+      else if (KPI_DEFS.some(k => k.id === key)) data.settings.kpiTargets[key] = val;
+      continue;
+    }
+    const label = String(r[0] || '');
+    const val = parseFloat(r[1]);
+    if (label === '총 인원') data.settings.totalEmployees = val || 220;
+    else if (label === '디지털 리더 수') data.settings.digitalLeaders = val || 22;
+    else if (label === '리더 활동 목표(건/인)') data.settings.kpiTargets.leaderActivity = val || 10;
+    else if (label === '혁신활동 목표(건/분기)') data.settings.kpiTargets.innovation = val || 1;
+    else if (r.length >= 3) {
+      const kpi = KPI_DEFS.find(k => k.name === r[1]);
+      if (kpi) data.settings.kpiTargets[kpi.id] = parseFloat(r[2]);
+    }
+  }
+  migrateSettings(data.settings);
+}
+
+function importCoursesSheet(wb) {
+  const sheet = wb.Sheets['교육과정'];
+  if (!sheet) return;
+  const rows = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+  const newCourses = [];
+  for (let i = 1; i < rows.length; i++) {
+    const r = rows[i];
+    if (!r || !r[2]) continue;
+    newCourses.push({
+      id: uid(), year: +r[0], month: +r[1], name: String(r[2]),
+      type: normalizeCourseType(r[3] || 'offline'),
+      planned: r[4] === 'Y' || r[4] === true || r[4] === 1,
+      actual: r[5] === 'Y' || r[5] === true || r[5] === 1,
+      trainees: +r[6] || 0,
+      satisfaction: r[7] !== '' && r[7] != null ? +r[7] : null,
+      application: r[8] !== '' && r[8] != null ? +r[8] : null
+    });
+  }
+  if (newCourses.length > 0) data.courses = newCourses;
+}
+
+function importMonthlySheet(wb) {
+  const sheet = wb.Sheets['월간지표'];
+  if (!sheet) return;
+  const rows = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+  const newMonthly = [];
+  for (let i = 1; i < rows.length; i++) {
+    const r = rows[i];
+    if (!r || !r[0]) continue;
+    const hasCultivationCol = rows[0] && (String(rows[0][3] || '').includes('양성') || rows[0].length >= 5);
+    newMonthly.push({
+      id: uid(), year: +r[0], month: +r[1],
+      leaderActivities: +r[2] || 0,
+      leaderCultivation: hasCultivationCol ? (+r[3] || 0) : 0,
+      innovationActivities: hasCultivationCol ? (+r[4] || 0) : (+r[3] || 0)
+    });
+  }
+  if (newMonthly.length > 0) data.monthly = newMonthly;
+}
+
+initYearSelect();
+initExcelUI();
+renderAll();
+</script>
+</body>
+</html>
